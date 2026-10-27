@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="rainbow">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <title>SoloHost Browser</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/ai-panel.css">
+</head>
+<body class="browser-shell">
+  <header class="chrome chrome-top" role="banner">
+    <form class="omnibox" id="nav-form" action="javascript:void(0)" autocomplete="off">
+      <span class="omnibox-lock" aria-hidden="true">◎</span>
+      <input type="text" id="url-input" placeholder="Search or enter address" spellcheck="false" enterkeyhint="go" autocomplete="off" inputmode="url">
+      <button type="submit" class="icon-btn go" id="btn-go" title="Go" aria-label="Go">→</button>
+    </form>
+    <div class="chrome-actions" role="toolbar" aria-label="Quick actions">
+      <button type="button" class="icon-btn" id="btn-new-tab" title="New tab" aria-label="New tab">＋</button>
+      <button type="button" class="icon-btn" id="btn-bookmark" title="Bookmark" aria-label="Bookmark">☆</button>
+      <button type="button" class="icon-btn" id="btn-find" title="Find in page" aria-label="Find in page">⌕</button>
+      <button type="button" class="icon-btn" id="btn-menu" title="Menu" aria-label="Menu" aria-expanded="false" aria-controls="settings-menu">☰</button>
+    </div>
+  </header>
+  <div class="find-bar" id="find-bar" hidden role="search">
+    <input type="search" id="find-input" placeholder="Find in page" enterkeyhint="search" autocomplete="off">
+    <span class="find-count" id="find-count"></span>
+    <button type="button" class="icon-btn" id="find-prev" title="Previous" aria-label="Previous match">↑</button>
+    <button type="button" class="icon-btn" id="find-next" title="Next" aria-label="Next match">↓</button>
+    <button type="button" class="icon-btn" id="find-close" title="Close" aria-label="Close find">×</button>
+  </div>
+  <div class="ptr-indicator" id="ptr-indicator" hidden aria-hidden="true">↓</div>
+
+  <nav class="tab-strip" id="tab-strip" aria-label="Browser tabs"></nav>
+
+  <div id="page-context-menu" class="page-context-menu" role="menu" aria-label="Page actions" hidden></div>
+  <main class="viewport" id="viewport">
+    <iframe
+      id="main-webview"
+      name="main-webview"
+      title="Page"
+      src="about:blank"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+      allowfullscreen
+    ></iframe>
+        <div class="splash-screen" id="splash-screen" aria-hidden="false">
+      <div class="splash-inner">
+        <img class="splash-logo" src="/splash-logo.jpg" alt="SoloHost Browser" width="128" height="128" decoding="async">
+        <h1 class="splash-title">SoloHost Browser</h1>
+        <p class="splash-tagline">Simple · Private · Lightweight</p>
+      </div>
+    </div>
+
+    <div class="access-gate" id="access-gate" hidden>
+      <form class="access-gate-card" id="access-gate-form" autocomplete="on">
+        <div class="access-gate-logo">🔒</div>
+        <h2 id="access-gate-title">Access password</h2>
+        <p id="access-gate-hint">Enter the SoloHost Browser password to continue.</p>
+        <input type="password" id="access-gate-input" name="password" placeholder="Password" autocomplete="current-password" required>
+        <p class="access-gate-error" id="access-gate-error" hidden></p>
+        <button type="submit" class="access-gate-btn" id="access-gate-submit">Unlock</button>
+      </form>
+    </div>
+
+    <div class="start-screen" id="start-screen">
+      <div class="start-inner start-inner--utils">
+        <div class="home-icons" id="home-utils" role="navigation" aria-label="Home tools">
+          <button type="button" class="home-icon-btn" id="tile-playlist" data-panel="panel-playlists">
+            <span class="home-icon-glyph" aria-hidden="true">♪</span>
+            <span class="home-icon-label" id="home-pl-title">Playlist</span>
+            <span class="home-icon-count" id="pl-count">0</span>
+          </button>
+          <button type="button" class="home-icon-btn" id="tile-scripts" data-panel="panel-scripts">
+            <span class="home-icon-glyph" aria-hidden="true">⚡</span>
+            <span class="home-icon-label" id="home-sc-title">AI Tasks</span>
+            <span class="home-icon-count" id="sc-count">0</span>
+          </button>
+          <button type="button" class="home-icon-btn" id="tile-apps" data-panel="panel-apps">
+            <span class="home-icon-glyph" aria-hidden="true">⊞</span>
+            <span class="home-icon-label" id="home-app-title">Apps</span>
+            <span class="home-icon-count" id="app-count">0</span>
+          </button>
+        </div>
+
+        <button type="button" class="home-panel-backdrop" id="home-panel-backdrop" hidden aria-label="Close"></button>
+        <div class="home-panel" id="panel-playlists" hidden>
+          <header class="home-panel-h">
+            <strong id="panel-pl-h">♪ Music library</strong>
+            <button type="button" class="icon-btn tiny home-panel-close" data-close title="Close">×</button>
+          </header>
+  <div class="find-bar" id="find-bar" hidden role="search">
+    <input type="search" id="find-input" placeholder="Find in page" enterkeyhint="search" autocomplete="off">
+    <span class="find-count" id="find-count"></span>
+    <button type="button" class="icon-btn" id="find-prev" title="Previous" aria-label="Previous match">↑</button>
+    <button type="button" class="icon-btn" id="find-next" title="Next" aria-label="Next match">↓</button>
+    <button type="button" class="icon-btn" id="find-close" title="Close" aria-label="Close find">×</button>
+  </div>
+  <div class="ptr-indicator" id="ptr-indicator" hidden aria-hidden="true">↓</div>
+          <section class="playlist-player" aria-label="Playlist player">
+            <div class="playlist-player-head"><span id="playlist-now-label">Now playing</span><span id="playlist-now-title">Choose a video</span></div>
+            <iframe id="playlist-player-frame" title="Playlist player" src="about:blank" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            <p class="home-hint" id="playlist-player-hint">Videos play here without leaving your music library.</p>
+          </section>
+          <div class="home-row home-actions playlist-controls" aria-label="Playback controls">
+            <button type="button" class="chip" id="btn-pl-prev" title="Previous">⏮</button>
+            <button type="button" class="chip" id="btn-pl-play" title="Play or pause" aria-label="Play or pause">▶</button>
+            <button type="button" class="chip" id="btn-pl-next" title="Next">⏭</button>
+            <button type="button" class="chip" id="btn-pl-shuffle" title="Shuffle off" aria-pressed="false">🔀</button>
+            <button type="button" class="chip" id="btn-pl-repeat" title="Repeat off" aria-pressed="false">🔁</button>
+          </div>
+          <div class="home-card-body" id="pl-list" aria-label="Music library items"></div>
+          <form class="home-row" id="pl-add-form">
+            <input type="url" id="pl-url-input" placeholder="Paste an audio / YouTube / video link…" autocomplete="off" required>
+            <button type="submit" class="icon-btn tiny" id="pl-url-add" title="Add">＋</button>
+          </form>
+          <div class="home-row home-actions">
+            <button type="button" class="chip" id="btn-pl-add" title="New list">＋ List</button>
+            <button type="button" class="chip" id="btn-pl-music" title="Music">♪ Music</button>
+          </div>
+        </div>
+
+        <div class="home-panel" id="panel-scripts" hidden>
+          <p class="home-hint" id="sc-hint">These are tasks you have assigned to AI Panel. Ask AI Panel to create or change a task; no manual task form is needed.</p>
+          <div class="home-card-body" id="sc-list"></div>
+          <button type="button" class="icon-btn tiny" id="btn-sc-refresh" title="Refresh">↻</button>
+        </div>
+
+        <div class="home-panel" id="panel-apps" hidden>
+          <header class="home-panel-h">
+            <strong id="panel-app-h">⊞ SoloHost Apps</strong>
+            <button type="button" class="icon-btn tiny home-panel-close" data-close title="Close">×</button>
+          </header>
+  <div class="find-bar" id="find-bar" hidden role="search">
+    <input type="search" id="find-input" placeholder="Find in page" enterkeyhint="search" autocomplete="off">
+    <span class="find-count" id="find-count"></span>
+    <button type="button" class="icon-btn" id="find-prev" title="Previous" aria-label="Previous match">↑</button>
+    <button type="button" class="icon-btn" id="find-next" title="Next" aria-label="Next match">↓</button>
+    <button type="button" class="icon-btn" id="find-close" title="Close" aria-label="Close find">×</button>
+  </div>
+  <div class="ptr-indicator" id="ptr-indicator" hidden aria-hidden="true">↓</div>
+          <div class="home-card-body" id="app-list"></div>
+          <form class="home-row" id="app-add-form">
+            <input type="text" id="app-name-input" placeholder="Name" autocomplete="off">
+            <input type="url" id="app-url-input" placeholder="http://127.0.0.1:8090" autocomplete="off">
+            <button type="submit" class="icon-btn tiny" title="Add">＋</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <nav class="chrome chrome-bottom" role="navigation" aria-label="Navigation">
+    <button type="button" class="icon-btn" id="btn-back" title="Back" aria-label="Back">←</button>
+    <button type="button" class="icon-btn" id="btn-fwd" title="Next" aria-label="Next">→</button>
+    <button type="button" class="icon-btn" id="btn-home" title="Home" aria-label="Home">⌂</button>
+    <button type="button" class="icon-btn" id="btn-reload" title="Reload" aria-label="Reload">↻</button><span id="runtime-locale" class="runtime-locale" aria-live="polite"></span>
+  </nav>
+
+  <div class="more-backdrop" id="settings-backdrop" hidden></div>
+  
+  <div class="vpn-overlay" id="vpn-overlay" hidden>
+    <section class="vpn-panel" id="vpn-panel" role="dialog" aria-modal="true" aria-labelledby="vpn-title">
+      <header class="vpn-header">
+        <strong id="vpn-title">Secure connection</strong>
+        <button type="button" class="icon-btn" id="vpn-close" aria-label="Close">×</button>
+      </header>
+      <div class="vpn-status-row">
+        <span class="vpn-dot" id="vpn-dot" data-state="DISCONNECTED"></span>
+        <div class="vpn-status-text">
+          <div id="vpn-state-label">Disconnected</div>
+          <div class="vpn-sub" id="vpn-sub-label">Direct connection</div>
+        </div>
+        <button type="button" class="vpn-toggle" id="vpn-toggle" aria-pressed="false" title="Connect / Disconnect">OFF</button>
+      </div>
+      <div class="vpn-metrics">
+        <div><span class="vpn-k" id="vpn-ip-k">IP</span><code id="vpn-ip">—</code></div>
+        <div><span class="vpn-k" id="vpn-loc-k">Location</span><span id="vpn-loc">—</span></div>
+        <div><span class="vpn-k" id="vpn-lat-k">Latency</span><span id="vpn-lat">—</span></div>
+      </div>
+      <label class="vpn-label" for="vpn-entry-select" id="vpn-proxy-label">Proxy</label>
+      <select id="vpn-entry-select"></select>
+      <div class="vpn-actions">
+        <button type="button" class="chip" id="vpn-quick">Quick connect</button>
+        <button type="button" class="chip" id="vpn-test">Test</button>
+        <button type="button" class="chip" id="vpn-refresh">↻</button>
+      </div>
+      <details class="vpn-advanced" id="vpn-advanced">
+        <summary id="vpn-adv-sum">Add / edit proxy</summary>
+        <label class="vpn-label" for="vpn-name">Name</label>
+        <input id="vpn-name" type="text" maxlength="80" placeholder="My proxy" autocomplete="off">
+        <label class="vpn-label" for="vpn-provider">Provider</label>
+        <select id="vpn-provider">
+          <option value="custom">Custom</option>
+          <option value="selfhosted">Self-hosted</option>
+          <option value="manual-provider">Commercial (manual)</option>
+        </select>
+        <label class="vpn-label" for="vpn-protocol">Protocol</label>
+        <select id="vpn-protocol">
+          <option value="http">HTTP</option>
+          <option value="https">HTTPS</option>
+          <option value="socks5">SOCKS5</option>
+        </select>
+        <label class="vpn-label" for="vpn-host">Host</label>
+        <input id="vpn-host" type="text" placeholder="proxy.example.com" autocomplete="off" spellcheck="false">
+        <label class="vpn-label" for="vpn-port">Port</label>
+        <input id="vpn-port" type="number" min="1" max="65535" placeholder="8080">
+        <label class="vpn-label" for="vpn-user">Username (optional)</label>
+        <input id="vpn-user" type="text" autocomplete="off">
+        <label class="vpn-label" for="vpn-pass">Password (optional)</label>
+        <input id="vpn-pass" type="password" autocomplete="new-password" placeholder="Stored on server only">
+        <label class="vpn-label" for="vpn-location">Location label (optional)</label>
+        <input id="vpn-location" type="text" placeholder="US / Singapore / …" maxlength="64">
+        <div class="vpn-actions">
+          <button type="button" class="chip primary" id="vpn-save">Save proxy</button>
+          <button type="button" class="chip danger" id="vpn-delete" hidden>Delete</button>
+        </div>
+      </details>
+      <p class="vpn-note" id="vpn-note">Uses your proxy server. Not a built-in VPN. Does not bypass CAPTCHA or guarantee login success.</p>
+      <p class="vpn-diag" id="vpn-diag" role="status" aria-live="polite"></p>
+    </section>
+  </div>
+
+  <div class="more-menu" id="settings-menu" hidden role="menu" aria-label="Browser menu">
+    <div class="menu-section" role="group" aria-label="Tabs">
+      <div class="menu-label" data-i18n="menu_section_tabs">Tabs</div>
+      <button type="button" id="btn-private-tab" role="menuitem">🕶️ New private tab</button>
+    </div>
+    <div class="menu-section" role="group" aria-label="Connection">
+      <div class="menu-label" data-i18n="menu_section_connection">Connection</div>
+      <button type="button" id="btn-vpn" class="vpn-btn" role="menuitem" aria-expanded="false" aria-controls="vpn-panel">🛡 Secure connection</button>
+      <button type="button" id="btn-vpn-menu" role="menuitem" hidden aria-hidden="true">🛡 Secure connection</button>
+      <button type="button" id="btn-novnc" role="menuitem">🖥️ Login desktop</button>
+    </div>
+    <div class="menu-section" role="group" aria-label="Page">
+      <div class="menu-label" data-i18n="menu_section_page">Page</div>
+      <button type="button" id="btn-reader" role="menuitem">📖 Reader</button>
+      <button type="button" id="btn-summary" role="menuitem">⚡ Summarize</button>
+      <button type="button" id="btn-translate" role="menuitem">🌐 Translate</button>
+      <button type="button" id="btn-add-pl" role="menuitem">▶ Add to playlist</button>
+    </div>
+    <div class="menu-section" role="group" aria-label="Library">
+      <div class="menu-label" data-i18n="menu_section_library">Library</div>
+      <button type="button" id="btn-library" role="menuitem">☷ History &amp; bookmarks</button>
+    </div>
+    <div class="menu-section" role="group" aria-label="Settings">
+      <div class="menu-label" data-i18n="menu_section_settings">Settings</div>
+      <button type="button" id="btn-search-settings" role="menuitem">⌕ Search engine</button>
+      <button type="button" id="btn-theme" role="menuitem">◐ Theme</button>
+      <button type="button" id="btn-lang" role="menuitem">EN / VI</button>
+    </div>
+  </div>
+
+  <div class="search-settings-overlay" id="search-settings-overlay" hidden>
+    <section class="search-settings-dialog" role="dialog" aria-modal="true" aria-labelledby="search-settings-title">
+      <header><strong id="search-settings-title">Default search engine</strong><button type="button" id="search-settings-close" class="icon-btn" aria-label="Close">×</button></header>
+      <label for="search-engine-select" id="search-engine-label">Search engine</label>
+      <select id="search-engine-select">
+        <option value="google" selected>Google</option><option value="bing">Bing</option><option value="duckduckgo">DuckDuckGo</option><option value="brave">Brave Search</option><option value="custom">Custom URL…</option>
+      </select>
+      <label for="search-engine-custom" id="search-custom-label">Custom search URL (use {query} or %s)</label>
+      <input id="search-engine-custom" type="url" placeholder="https://example.com/search?q={query}" autocomplete="url">
+      <p id="search-engine-help">Custom URL must use HTTP(S). Use {query} or %s where the encoded search terms should go.</p>
+      <p id="search-engine-status" role="status" aria-live="polite"></p>
+      <footer><button type="button" id="search-settings-cancel">Cancel</button><button type="button" id="search-settings-save">Save</button></footer>
+    </section>
+  </div>
+
+  <div class="library-overlay" id="library-overlay" hidden>
+    <section class="library-panel" role="dialog" aria-modal="true" aria-labelledby="library-title">
+      <header class="library-header"><strong id="library-title">Library</strong><button type="button" id="library-close" class="icon-btn" aria-label="Close">×</button></header>
+      <div class="library-tabs"><button type="button" data-library="bookmarks" class="active">☆ Bookmarks</button><button type="button" data-library="history">◷ History</button></div>
+      <div id="library-list" class="library-list"></div>
+      <footer class="library-footer"><button type="button" id="history-clear">Clear history</button></footer>
+    </section>
+  </div>
+
+  <button type="button" class="ai-fab" id="aiFab" title="AI · Feedback · Settings" aria-label="AI">
+    <img src="/ai-icon.png" alt="AI" class="ai-fab-img">
+    <span class="ai-fab-dot" id="aiStatusDot"></span>
+    <span class="ai-badge" id="aiBadge" hidden style="display:none"></span>
+  </button>
+  <div class="agent-bar" id="agentBar" hidden role="status" aria-live="polite">
+    <div class="agent-bar-row"><span class="agent-spin" aria-hidden="true"></span><span id="agentStatus">…</span><button type="button" id="agentStop">Stop</button></div>
+    <div class="agent-confirm" id="agentConfirm" hidden>
+      <div id="agentConfirmText"></div>
+      <div class="agent-confirm-btns"><button type="button" id="agentYes">Allow</button><button type="button" id="agentNo">Deny</button></div>
+    </div>
+  </div>
+  <div class="panel-overlay" id="aiOverlay" hidden style="z-index:400">
+    <div class="panel ai-panel" id="aiPanel">
+      <div class="panel-header">
+        <span class="panel-title">✦ AI</span>
+        <button type="button" class="panel-close" id="aiClose" aria-label="Close">×</button>
+      </div>
+      <div class="panel-tabs" id="panelTabs">
+        <button type="button" class="tab active" data-tab="chat">Chat</button>
+        <button type="button" class="tab" data-tab="feedback">Feedback <span class="tab-badge" id="fbTabBadge" hidden></span></button>
+        <button type="button" class="tab" data-tab="settings">Settings</button>
+        <button type="button" class="tab" data-tab="logs">Logs</button>
+      </div>
+      <div class="panel-body">
+        <div class="tab-pane active" id="pane-chat">
+          <div class="chat-log" id="chatLog"></div>
+          <p class="agent-hint" id="agentHint" hidden></p>
+          <div class="chat-log" id="aiChat" hidden aria-hidden="true"></div>
+          <form class="chat-form" id="chatForm">
+            <input type="text" id="chatInput" class="chat-input" placeholder="Ask anything or tell me what to do…" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="true" lang="vi" inputmode="text" enterkeyhint="send" maxlength="12000" aria-label="Chat message">
+            <button type="submit" id="chatSend">Send</button>
+          </form>
+          <div class="ai-status-bar" id="aiStatusBar">AI: …</div>
+        </div>
+        <div class="tab-pane" id="pane-feedback" hidden>
+          <div class="fb-body" style="padding:10px;overflow:auto;flex:1;min-height:0">
+            <p style="opacity:.8;font-size:13px;margin:0 0 8px">Send feedback to the author. Notices from the Hub appear below.</p>
+            <label style="display:block;font-size:12px;opacity:.75;margin-top:8px">Type</label>
+            <select id="fbType" style="width:100%;min-height:40px;margin:4px 0 8px;padding:8px;border-radius:8px;background:#120f22;color:#fff;border:1px solid #445">
+              <option value="improvement">Improvement</option>
+              <option value="bug">Bug</option>
+              <option value="question">Question</option>
+              <option value="praise">Praise</option>
+            </select>
+            <label style="display:block;font-size:12px;opacity:.75">Rating</label>
+            <div class="fb-stars" id="fbStars" style="display:flex;gap:4px;margin:4px 0 10px">
+              <button type="button" data-r="1" aria-label="1 star">★</button>
+              <button type="button" data-r="2" aria-label="2 stars">★</button>
+              <button type="button" data-r="3" aria-label="3 stars">★</button>
+              <button type="button" data-r="4" aria-label="4 stars">★</button>
+              <button type="button" data-r="5" aria-label="5 stars">★</button>
+            </div>
+            <label style="display:block;font-size:12px;opacity:.75">Message</label>
+            <textarea id="fbMessage" rows="4" style="width:100%;margin:4px 0 8px;padding:8px;border-radius:8px;background:#120f22;color:#fff;border:1px solid #445;resize:vertical"></textarea>
+            <button type="button" id="fbSubmit" class="fb-submit" style="min-height:40px;padding:0 16px;border-radius:10px;border:0;background:#3b82f6;color:#fff;font-weight:600;cursor:pointer">Send feedback</button>
+            <p id="fbStatus" style="font-size:13px;opacity:.85;margin-top:8px"></p>
+            <div id="fbDonate" class="fb-donate" hidden></div>
+            <div id="fbNotices" class="fb-notes"></div>
+          </div>
+        </div>
+        <div class="tab-pane" id="pane-settings" hidden>
+          <div class="settings-body" style="padding:10px;overflow:auto;flex:1;min-height:0">
+            <label style="display:block;font-size:12px;opacity:.75">Provider</label>
+            <select id="setProvider" style="width:100%;min-height:40px;margin:4px 0 8px;padding:8px;border-radius:8px;background:#120f22;color:#fff;border:1px solid #445"></select>
+            <label style="display:block;font-size:12px;opacity:.75">API key</label>
+            <input type="password" id="setApiKey" placeholder="sk-…" autocomplete="off" style="width:100%;min-height:40px;margin:4px 0 8px;padding:8px;border-radius:8px;background:#120f22;color:#fff;border:1px solid #445">
+            <p id="setKeyHint" style="font-size:12px;opacity:.65;margin:0 0 8px"></p>
+            <label style="display:block;font-size:12px;opacity:.75">Base URL (custom / local)</label>
+            <input type="text" id="setBaseUrl" placeholder="https://…" style="width:100%;min-height:40px;margin:4px 0 8px;padding:8px;border-radius:8px;background:#120f22;color:#fff;border:1px solid #445">
+            <label style="display:block;font-size:12px;opacity:.75">Model</label>
+            <select id="setModel" style="width:100%;min-height:40px;margin:4px 0 8px;padding:8px;border-radius:8px;background:#120f22;color:#fff;border:1px solid #445"><option value="auto">auto</option></select>
+            <label style="display:block;font-size:12px;opacity:.75">Mode</label>
+            <select id="setMode" style="width:100%;min-height:40px;margin:4px 0 8px;padding:8px;border-radius:8px;background:#120f22;color:#fff;border:1px solid #445">
+              <option value="cloud_enabled">Cloud enabled</option>
+              <option value="prefer_local">Prefer local</option>
+              <option value="local_only">Local only</option>
+              <option value="balanced">Balanced</option>
+              <option value="custom">Custom</option>
+            </select>
+            <div class="settings-field agent-time-field" style="display:block;margin:12px 0 8px;clear:both">
+              <label for="agent-time-limit" style="display:block;font-size:12px;opacity:.75;margin:0 0 4px">Agent time limit (minutes)</label>
+              <input type="number" id="agent-time-limit" min="5" max="180" step="5" value="60" style="width:100%;box-sizing:border-box;min-height:40px;padding:8px 10px;border-radius:8px;background:#120f22;color:#fff;border:1px solid #445">
+              <p style="font-size:11px;opacity:.6;margin:6px 0 0;line-height:1.35">Each Agent task runs up to this many minutes (default 60).</p>
+            </div>
+            <div class="settings-actions" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+              <button type="button" id="setSave" style="min-height:40px;padding:0 14px;border-radius:10px;border:0;background:#3b82f6;color:#fff;font-weight:600;cursor:pointer">Save</button>
+              <button type="button" id="setTest" style="min-height:40px;padding:0 14px;border-radius:10px;border:1px solid #445;background:#1a1a24;color:#fff;cursor:pointer">Test</button>
+              <button type="button" id="setModels" style="min-height:40px;padding:0 14px;border-radius:10px;border:1px solid #445;background:#1a1a24;color:#fff;cursor:pointer">Models</button>
+            </div>
+            <p id="setStatus" style="font-size:13px;opacity:.85;margin-top:10px"></p>
+          </div>
+        </div>
+        <div class="tab-pane" id="pane-logs" hidden>
+          <div class="logs-toolbar"><button type="button" id="logsRefresh">Refresh</button><button type="button" id="logsClear">Clear</button></div>
+          <pre class="logs-view" id="logsView"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/ai-module/ai-module.js"></script>
+  <script src="/feedback-module/feedback-module.js"></script>
+  <script src="/browser-agent.js"></script>
+  <script src="/ai-panel.js"></script>
+  <script src="/reader-injector.js" defer></script>
+    <script src="/layout-guard.js"></script>
+    <script src="/proxy-vpn.js"></script>
+  <script src="/app.js"></script>
+
+  <script id="splash-safety">
+  (function () {
+    function killSplash() {
+      var el = document.getElementById('splash-screen');
+      if (!el) return;
+      el.className = (el.className || '') + ' is-done';
+      el.style.display = 'none';
+      el.style.pointerEvents = 'none';
+      el.setAttribute('aria-hidden', 'true');
+      try { el.parentNode && el.parentNode.removeChild(el); } catch (e) {}
+    }
+    setTimeout(killSplash, 5000);
+    setTimeout(killSplash, 7000);
+    document.addEventListener('DOMContentLoaded', function () {
+      var el = document.getElementById('splash-screen');
+      if (el) el.addEventListener('click', killSplash, { once: true });
+    });
+  })();
+  </script>
+
+
+  <!-- Persistent music dock: keeps playing when home/panel is closed or window minimized (page still open) -->
+  <div id="bg-music-dock" class="bg-music-dock" hidden>
+    <div class="bg-music-meta">
+      <span id="bg-music-label">♪</span>
+      <span id="bg-music-title">—</span>
+    </div>
+    <div class="bg-music-actions">
+      <button type="button" class="chip" id="bg-music-prev" title="Prev">⏮</button>
+      <button type="button" class="chip" id="bg-music-play" title="Play/Pause">▶</button>
+      <button type="button" class="chip" id="bg-music-next" title="Next">⏭</button>
+      <button type="button" class="chip" id="bg-music-close" title="Stop">×</button>
+    </div>
+    <audio id="bg-music-audio" class="bg-music-audio" controls preload="metadata" hidden aria-label="Direct audio player"></audio>
+    <iframe id="bg-music-frame" title="Background music" src="about:blank" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+  </div>
+</body>
+</html>

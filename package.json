@@ -1,0 +1,24 @@
+{
+  "name": "solohost-browser-hub",
+  "version": "10.46.8",
+  "description": "SoloHost Browser \u2014 Agent reliability & self-recovery (Category D)",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/security.js && node test/agent-web.js && node test/challenge.js && node test/agent-actions.js && node test/agent-report.js && node test/config.js && node test-v10.44.5-geo-storage.js && node test/agent-unify.js && node test/vietnamese-input.js && node test/proxy-manager.js && node test/personal-browser-signals.js && node test/keep-engine.js && node test/chrome-toolbar.js && node test/agent-general-loop.js && node test/agent-dynamic-playbook.js && node test/agent-bugfix-playbooks-secret.js && node test/agent-reliability-d1-d10.js",
+    "test:e2e": "node test-agent-e2e.js",
+    "test:agent": "node test-agent-v1026.js",
+    "test:all": "node test-core.js && node test-security.js && node test-bridge.js && node test-youtube.js && node test-backend-agent.js && node test-agent-v1026.js && node test-agent-evidence-v1029.js",
+    "test:core": "node test-core.js",
+    "test:legacy": "node test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "playwright": "1.51.1"
+  }
+}

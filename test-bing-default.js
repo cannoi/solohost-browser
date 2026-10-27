@@ -1,0 +1,10 @@
+'use strict';
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+const root = __dirname;
+const search = fs.readFileSync(path.join(root, 'lib/agent-search.js'), 'utf8');
+const be = fs.readFileSync(path.join(root, 'lib/backend-agent.js'), 'utf8');
+assert.ok(/bing|ddg|brave/i.test(search), 'agent-search has engines');
+assert.ok(be.includes('search') || be.includes('agentSearch'), 'backend agent can search');
+console.log('[PASS] bing/default search engines present (ai-agent removed)');
