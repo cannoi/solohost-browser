@@ -1,0 +1,67 @@
+'use strict';
+const assert = require('assert');
+const { sanitizeHtml, hasRenderableContent, annotateInteractive, createSession, authSession, navigate, dispatchEvent, destroySession } = require('./lib/engine/dom-bridge');
+
+async function main() {
+  console.log('Bridge unit tests...');
+
+  // Sanitize strips scripts
+  const dirty = '<html><head><script>alert(1)</script></head><body onclick="x()"><a href="javascript:alert(1)">x</a><a href="https://example.com/p">ok</a></body></html>';
+  const clean = sanitizeHtml(dirty, 'https://example.com/');
+  assert.ok(!/<script/i.test(clean));
+  assert.ok(!/onclick/i.test(clean));
+  assert.ok(!/javascript:/i.test(clean));
+  assert.strictEqual(sanitizeHtml('', 'https://example.com/'), '', 'empty input must stay empty; never add CSS-only HTML');
+  assert.strictEqual(sanitizeHtml('<html><head><style>body{color:red}</style></head><body> </body></html>', 'https://example.com/'), '', 'CSS-only/empty body must stay empty');
+  assert.strictEqual(hasRenderableContent('<html><body><p>Useful page content</p></body></html>'), true);
+  assert.strictEqual(hasRenderableContent('<html><head><style>x{}</style></head><body></body></html>'), false);
+  assert.strictEqual(hasRenderableContent('', { textLength: 500, links: 8 }), false, 'audit metrics cannot turn an empty HTML string into content');
+  assert.strictEqual(hasRenderableContent('<html><body><video src="https://example.com/a.mp4"></video></body></html>'), true, 'media-only pages remain renderable');
+  console.log('  sanitize + empty-content semantics OK');
+
+  const ann = annotateInteractive('<a href="/p">p</a><button>b</button>');
+  assert.ok(ann.mapCount >= 2);
+  assert.ok(ann.html.includes('data-sh-id'));
+  const existing = annotateInteractive('<input data-sh-id="e77" type="text"><a data-sh-id="e78" href="/next">next</a>');
+  assert.ok(existing.map.e77 && existing.map.e78, 'existing WebKit ids must remain actionable');
+  assert.strictEqual(existing.map.e78.href, '/next');
+  console.log('  annotate OK');
+
+  // Session auth
+  const created = await createSession({ clientKey: 'test' });
+  assert.ok(created.sessionId && created.token);
+  assert.strictEqual(authSession(created.sessionId, 'bad'), null);
+  const s = authSession(created.sessionId, created.token);
+  assert.ok(s);
+
+  // Unauthorized pattern simulated
+  console.log('  session auth OK backend=', created.backend);
+
+  // Navigate example.com (network may work)
+  try {
+    const st = await navigate(s, 'https://example.com/');
+    assert.ok(st.sessionId);
+    console.log('  navigate example.com ok=', !!st.hasContent, 'url=', st.url, 'err=', st.error || null);
+    if (st.hasContent) {
+      // find a link id and click
+      const ids = Object.keys(s.map);
+      const linkId = ids.find((id) => s.map[id].tag === 'a' && s.map[id].href);
+      if (linkId) {
+        const ev = await dispatchEvent(s, { type: 'click', targetId: linkId });
+        console.log('  click mapped link ok=', ev.ok, 'url=', ev.url);
+      }
+    }
+  } catch (e) {
+    console.log('  navigate network limited:', e.message);
+  }
+
+  await destroySession(created.sessionId);
+  assert.strictEqual(authSession(created.sessionId, created.token), null);
+  console.log('  session destroy OK');
+  console.log('Bridge tests PASSED');
+}
+
+main().catch((e) => {
+  console.error('FAIL', e);
+  process.exit(1);
+});
