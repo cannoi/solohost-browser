@@ -1,0 +1,15 @@
+'use strict';
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+const eng = fs.readFileSync(path.join(__dirname, '../lib/engine/playwright-engine.js'), 'utf8');
+assert.ok(eng.includes('function keepEngineAlive'), 'keepEngineAlive helper');
+assert.ok(eng.includes("reason: 'keep_engine'"), 'release blocked when keep engine');
+assert.ok(eng.includes('willRelaunch: keepEngineAlive'), 'disconnect relaunches');
+assert.ok(eng.includes('_processShuttingDown = true'), 'shutdown sets flag');
+const bridge = fs.readFileSync(path.join(__dirname, '../lib/engine/dom-bridge.js'), 'utf8');
+assert.ok(bridge.includes('bridge.playwright_session_retry'), 'retry after playwright fail');
+assert.ok(bridge.includes('playwright-pending'), 'no silent proxy backend when engine missing');
+const server = fs.readFileSync(path.join(__dirname, '../server-app.js'), 'utf8');
+assert.ok(server.includes("reason: 'keep_engine'"), 'API release respects keep engine');
+console.log('[PASS] keep-engine');

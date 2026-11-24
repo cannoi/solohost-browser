@@ -1,0 +1,23 @@
+'use strict';
+const assert = require('assert');
+const { handleInput } = require('../lib/engine/live-stream');
+(async () => {
+  const calls = [];
+  const entry = { cdp: { send: async (name, args) => calls.push({ name, args }) } };
+  await handleInput(entry, { type: 'mouse', eventType: 'mouseReleased', x: 50, y: 20, button: 'left' });
+  assert.equal(calls[0].name, 'Input.dispatchMouseEvent');
+  assert.equal(calls[0].args.type, 'mouseReleased');
+  await handleInput(entry, { type: 'mouseMove', x: 999999, y: -999999 });
+  assert.equal(calls[1].args.x, 10000);
+  assert.equal(calls[1].args.y, -10000);
+  await handleInput(entry, { type: 'insertText', text: 'Tiếng Việt Telex – test' });
+  assert.equal(calls[2].name, 'Input.insertText');
+  assert.equal(calls[2].args.text, 'Tiếng Việt Telex – test');
+  await handleInput(entry, { type: 'key', eventType: 'invalid', key: 'Enter', code: 'Enter' });
+  assert.equal(calls[3].args.type, 'keyDown');
+  await handleInput(entry, { type: 'insertText', text: 'x'.repeat(5000) });
+  assert.equal(calls[4].args.text.length, 4096);
+  await handleInput(entry, { type: 'unknown' });
+  assert.equal(calls.length, 5);
+  console.log('Phase 1 live input tests: PASS');
+})().catch(e => { console.error(e); process.exit(1); });
